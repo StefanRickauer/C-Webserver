@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
-
+#include <sys/wait.h>
 
 #define BACKLOG 500		// max. number of pending connections
 #define PORT 10000
@@ -15,6 +15,10 @@
 
 // Connect to server using netcat: nc 127.0.0.1 10000
 // Alternatively use the browser, url: localhost:10000
+
+// In order for the send page to be rendered correctly by the browser
+// you need to add header information.
+// Use "curl -I <web-address>" to view examples, e.g. curl -I www.google.de
 
 /*void test_close_con(int *fp) {
 	close(*fp);
@@ -35,6 +39,8 @@ char *help_msg = "Usage: ./webserv [ -p port_number ]\n"
 	     "\n\t\tCommand summary (long):\n"
 	     "\t\t\t--help\t\tShow this text\n"
 	     "\t\t\t--port port\tSpecify port number for remote connections\n";
+
+int handle_client(int client);
 
 int main(int argc, char **argv)
 {
@@ -67,11 +73,13 @@ int main(int argc, char **argv)
 	}
 	
 	int serverFd, clientFd;
-	int status, bytes_read;
+	int status;
 	struct sockaddr_in6 serv_addr, cli_addr;
 	socklen_t addr_len;
 	char cli_addr_str[INET6_ADDRSTRLEN];
-	char request[BUF_SIZE], response[BUF_SIZE];
+	
+
+	pid_t pid;
 
 	// create
 	serverFd = socket(AF_INET6, SOCK_STREAM, 0);
@@ -120,45 +128,72 @@ int main(int argc, char **argv)
 					INET6_ADDRSTRLEN) == NULL)
 		{
 			// Could not convert client address to string
-			// terminate
-			close(serverFd);
-		} 
-		printf("Accepted new connection from: %s:%d\n", 
-				cli_addr_str, ntohs(cli_addr.sin6_port));
-			
-		memset(request, '\0', BUF_SIZE);	
+			printf("Accepted new connection.\n");
+		} else {
 		
-		while((bytes_read = read(clientFd, request, BUF_SIZE-1)) > 0)
-		{
-			
-			fprintf(stdout, "Received: %s\n", request);
-			
-			if(request[bytes_read - 1] == '\n')
-			{
-				break;
-			}
-			
+			printf("Accepted new connection from: %s:%d\n", 
+					cli_addr_str, ntohs(cli_addr.sin6_port));
 		}
-		if(bytes_read < 0)
+		// Fork here !!	
+		pid = fork();
+		if(pid == -1) 
+		{
+			// Add err msg
 			exit(EXIT_FAILURE);
-			
-                if(status == -1)
-       		{
-                	// handle error
-             		close(clientFd);
-             		continue;
-      		}
+		}
+		
+		else if (pid == 0) 
+		{
+			close(serverFd);
+			handle_client(clientFd);
+			close(clientFd);
+			printf("Connection closed.\n");
+			return 0;
+		}
 
-		memset(response, '\0', BUF_SIZE);
+		else 
+		{
+			close(clientFd);
+		}
 
-		snprintf(response, BUF_SIZE, "HTTP/1.0 200 0K");
-		write(clientFd, response, BUF_SIZE);
-		//test_close_con(&clientFd);
-        	close(clientFd);
-		printf("Connection closed.\n");
+		
 
 			
 	}
 
 	exit(EXIT_SUCCESS);
+}
+
+
+// return codes: -1 fail, 1 success
+int handle_client(int client) 
+{
+	char request[BUF_SIZE], response[BUF_SIZE];
+	int bytes_read;	
+		
+	memset(request, '\0', BUF_SIZE);	
+		
+	while((bytes_read = read(client, request, BUF_SIZE-1)) > 0)
+	{
+			
+		fprintf(stdout, "Received: %s\n", request);
+			
+		if(request[bytes_read - 1] == '\n')
+		{
+			break;
+		}
+			
+	}
+	if(bytes_read < 0)
+		return -1;
+	
+	memset(response, '\0', BUF_SIZE);
+
+	// In order to test if several parallel connections can be established 
+	sleep(10);
+	//	DELETE LINE ABOVE
+	snprintf(response, BUF_SIZE, "HTTP/1.0 200 0K");
+	write(client, response, BUF_SIZE);
+      	
+	return 1;
 }
