@@ -11,19 +11,25 @@
 
 #define BACKLOG 500		// max. number of pending connections
 #define PORT 10000
-#define BUF_SIZE 100
+#define BUF_SIZE 400
 
-// Connect to server using netcat: nc 127.0.0.1 10000
-// Alternatively use the browser, url: localhost:10000
-
-// In order for the send page to be rendered correctly by the browser
-// you need to add header information.
-// Use "curl -I <web-address>" to view examples, e.g. curl -I www.google.de
-
-/*void test_close_con(int *fp) {
-	close(*fp);
-}
+/*
+ * To Do:
+ * 	Add function that creates header data
+ * 	Add header-file that contains function mentioned above
+ * 	Add status codes to header-file (status codes see: RFC-7231)
+ * 	Process requests 
+ * 	Handle errors
+ * 	Add log function?
+ *
+ * Test the server:
+ * 	nc localhost <port>
+ * 	localhost:<port> (Browser)
+ *
+ * Header examples:
+ * 	curl -I <url>
 */
+
 
 static const struct option long_options[] = 
 {
@@ -39,6 +45,12 @@ char *help_msg = "Usage: ./webserv [ -p port_number ]\n"
 	     "\n\t\tCommand summary (long):\n"
 	     "\t\t\t--help\t\tShow this text\n"
 	     "\t\t\t--port port\tSpecify port number for remote connections\n";
+
+// When sending only html-code like: <h1>Test</h1> the browser does not render the code.
+// Adding a header solves the problem. *test_msg got renderd correctly!
+
+char *test_msg = "HTTP/1.1 200 OK\nDate: Thu, 01 Sep 2022 16:54:46 GMT\nServer: webserv\nLocation: /\n"
+		 "Connection: close\nContent-Type: text/html; charset=iso-8859-1\n\n<h1>Hello World!</h1>";
 
 int handle_client(int client);
 
@@ -77,11 +89,9 @@ int main(int argc, char **argv)
 	struct sockaddr_in6 serv_addr, cli_addr;
 	socklen_t addr_len;
 	char cli_addr_str[INET6_ADDRSTRLEN];
-	
-
 	pid_t pid;
 
-	// create
+	
 	serverFd = socket(AF_INET6, SOCK_STREAM, 0);
 	
 	if(serverFd == -1)
@@ -94,15 +104,13 @@ int main(int argc, char **argv)
 	serv_addr.sin6_addr = in6addr_any;
        	serv_addr.sin6_port = htons( (port == -1) ? PORT : port);	
 
-	// bind
 	status = bind(serverFd, (struct sockaddr*) &serv_addr, sizeof(struct sockaddr_in6));
 	if(status == -1)
 	{
 		// Handle bind error, close socket and terminate
 		close(serverFd);
 	}
-
-	// listen 
+ 
 	status = listen(serverFd, BACKLOG);
 	if(status == -1)
 	{
@@ -112,7 +120,6 @@ int main(int argc, char **argv)
 
 	printf("Server started on port: %d\n", (port == -1) ? PORT : port);
 	
-	// accept
 	while(1)
 	{
 		addr_len = sizeof(struct sockaddr_in6);
@@ -134,7 +141,7 @@ int main(int argc, char **argv)
 			printf("Accepted new connection from: %s:%d\n", 
 					cli_addr_str, ntohs(cli_addr.sin6_port));
 		}
-		// Fork here !!	
+			
 		pid = fork();
 		if(pid == -1) 
 		{
@@ -154,11 +161,7 @@ int main(int argc, char **argv)
 		else 
 		{
 			close(clientFd);
-		}
-
-		
-
-			
+		}	
 	}
 
 	exit(EXIT_SUCCESS);
@@ -189,10 +192,12 @@ int handle_client(int client)
 	
 	memset(response, '\0', BUF_SIZE);
 
-	// In order to test if several parallel connections can be established 
-	sleep(10);
-	//	DELETE LINE ABOVE
-	snprintf(response, BUF_SIZE, "HTTP/1.0 200 0K");
+	 
+	//sleep(10);	<= successfully tested parallel processing
+	
+	//snprintf(response, BUF_SIZE, "HTTP/1.1 200 OK");
+	
+	strncpy(response, test_msg, strlen(test_msg));
 	write(client, response, BUF_SIZE);
       	
 	return 1;
