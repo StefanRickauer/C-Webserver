@@ -9,9 +9,11 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+#include "boolean.h"
+#include "server_logic.h"
+
 #define BACKLOG 500		// max. number of pending connections
 #define PORT 10000
-#define BUF_SIZE 400
 
 /*
  * To Do:
@@ -45,14 +47,6 @@ char *help_msg = "Usage: ./webserv [ -p port_number ]\n"
 	     "\n\t\tCommand summary (long):\n"
 	     "\t\t\t--help\t\tShow this text\n"
 	     "\t\t\t--port port\tSpecify port number for remote connections\n";
-
-// When sending only html-code like: <h1>Test</h1> the browser does not render the code.
-// Adding a header solves the problem. *test_msg got renderd correctly!
-
-char *test_msg = "HTTP/1.1 200 OK\nDate: Thu, 01 Sep 2022 16:54:46 GMT\nServer: webserv\nLocation: /\n"
-		 "Connection: close\nContent-Type: text/html; charset=iso-8859-1\n\n<h1>Hello World!</h1>";
-
-int handle_client(int client);
 
 int main(int argc, char **argv)
 {
@@ -89,6 +83,7 @@ int main(int argc, char **argv)
 	struct sockaddr_in6 serv_addr, cli_addr;
 	socklen_t addr_len;
 	char cli_addr_str[INET6_ADDRSTRLEN];
+	bool verbose = true; 			// Add cmd line option to disable verbose?
 	pid_t pid;
 
 	
@@ -152,7 +147,7 @@ int main(int argc, char **argv)
 		else if (pid == 0) 
 		{
 			close(serverFd);
-			handle_client(clientFd);
+			handle_client(clientFd, verbose);
 			close(clientFd);
 			printf("Connection closed.\n");
 			return 0;
@@ -165,40 +160,4 @@ int main(int argc, char **argv)
 	}
 
 	exit(EXIT_SUCCESS);
-}
-
-
-// return codes: -1 fail, 1 success
-int handle_client(int client) 
-{
-	char request[BUF_SIZE], response[BUF_SIZE];
-	int bytes_read;	
-		
-	memset(request, '\0', BUF_SIZE);	
-		
-	while((bytes_read = read(client, request, BUF_SIZE-1)) > 0)
-	{
-			
-		fprintf(stdout, "Received: %s\n", request);
-			
-		if(request[bytes_read - 1] == '\n')
-		{
-			break;
-		}
-			
-	}
-	if(bytes_read < 0)
-		return -1;
-	
-	memset(response, '\0', BUF_SIZE);
-
-	 
-	//sleep(10);	<= successfully tested parallel processing
-	
-	//snprintf(response, BUF_SIZE, "HTTP/1.1 200 OK");
-	
-	strncpy(response, test_msg, strlen(test_msg));
-	write(client, response, BUF_SIZE);
-      	
-	return 1;
 }
