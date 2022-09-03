@@ -3,15 +3,15 @@
 #include <unistd.h>
 
 #include "boolean.h"
+#include "http_response.h"
 #include "server_logic.h"
 
 // return codes: -1 fail, 1 success
 int handle_client(int client, bool verbose) 
 {
-	char *test_msg = "HTTP/1.1 200 OK\nDate: Thu, 01 Sep 2022 16:54:46 GMT\nServer: webserv\nLocation: /\n"
-		 "Connection: close\nContent-Length: 21\nContent-Type: text/html; charset=iso-8859-1\n\n<h1>Hello World!</h1>";
+	char *body = "<h1>Hello World!</h1>";
 
-	char request[BUF_SIZE], response[BUF_SIZE];
+	char request[BUF_SIZE], response[BUF_SIZE], header[BUF_SIZE], status_line[BUF_SIZE], header_fields[BUF_SIZE];
 	int bytes_read;	
 		
 	memset(request, '\0', BUF_SIZE);	
@@ -19,7 +19,7 @@ int handle_client(int client, bool verbose)
 	while((bytes_read = read(client, request, BUF_SIZE-1)) > 0)
 	{
 		if(verbose)	
-			fprintf(stdout, "Received: %s\n", request);
+			fprintf(stdout, "Client request:\n%s\n", request);
 			
 		if(request[bytes_read - 1] == '\n')
 		{
@@ -31,13 +31,16 @@ int handle_client(int client, bool verbose)
 		return -1;
 	
 	memset(response, '\0', BUF_SIZE);
+	
+	get_status_line(PROTOCOL, "200 OK", status_line);
+	get_header_fields(header_fields);
+	
+	strcpy(header, status_line);
+	strcat(header, header_fields);
 
-	 
-	//sleep(10);	<= successfully tested parallel processing
+	strncpy(response, header, strlen(header));
+	strncat(response, body, strlen(body));
 	
-	//snprintf(response, BUF_SIZE, "HTTP/1.1 200 OK");
-	
-	strncpy(response, test_msg, strlen(test_msg));
 	write(client, response, BUF_SIZE);
       	
 	return 1;

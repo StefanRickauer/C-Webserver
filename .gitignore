@@ -1,5 +1,6 @@
-# Ignore all PDF files
+# Ignore PDF and Text files
 *.pdf
+*.txt
 
 # Prerequisites
 *.d
