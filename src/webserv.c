@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 {
 	int port = -1;	// to check if user specified port, if not port == -1
 	
-	while(1)
+	while(TRUE)
 	{
 		int option_index = 0;
 		int c = getopt_long(argc, argv, "p:h", long_options, &option_index);
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 
 	printf("Server started on port: %d\n", (port == -1) ? PORT : port);
 	
-	while(1)
+	while(TRUE)
 	{
 		addr_len = sizeof(struct sockaddr_in6);
 		clientFd = accept(serverFd, (struct sockaddr*) &cli_addr, &addr_len);

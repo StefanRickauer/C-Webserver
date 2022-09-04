@@ -1,10 +1,9 @@
 #include <string.h>
+#include "error_codes.h"
 #include "http_request.h"
 #include "mcval.h"
 
-#include <stdio.h>
-
-// return 0 on success, 1 failure getting method, 2 failure getting target, 3 failure getting version
+// return 0 on success, http error code on failure
 int extract_req_params(char *request, char *method, char *target, char *version)
 {
 
@@ -17,8 +16,7 @@ int extract_req_params(char *request, char *method, char *target, char *version)
 	
 	if(sub_string == NULL)
 	{
-		printf("TEST 1\n");
-		return 1;
+		return BAD_REQUEST;
 	}
 	
 	strcpy(method, sub_string);
@@ -27,8 +25,8 @@ int extract_req_params(char *request, char *method, char *target, char *version)
 
 	if(sub_string == NULL)
 	{
-		printf("TEST 2\n");
-		return 2;
+		
+		return BAD_REQUEST;
 	} 	
 	strcpy(target, sub_string);
 
@@ -36,8 +34,8 @@ int extract_req_params(char *request, char *method, char *target, char *version)
 
 	if(sub_string == NULL)
 	{
-		printf("TEST 3\n");
-		return 3;
+		
+		return BAD_REQUEST;
 	} 	
 
 	strcpy(version, sub_string);

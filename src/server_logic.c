@@ -41,7 +41,7 @@ int handle_client(int client, bool verbose)
 		printf("[TEST] Method: %s\tLocation: %s\tProtocol: %s\n", req_method, req_location, req_proto);
 	}
 
-	// <===================== Proceed here
+	// <===================== Proceed here check method (get, post, head etc.) load html file
 
 	memset(response, '\0', BUF_SIZE);
 	
