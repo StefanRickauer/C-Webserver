@@ -18,7 +18,7 @@ CFLAGS=-g -iquote $(HDR) -Wall -Wextra
 
 all: $(BIN)/$(PROG)
 
-release: CFLAGS=-iquote $(HDR) -Wall -O2 -DNDEBUG
+release: CFLAGS=-iquote $(HDR) -Wall -O2 -s -DNDEBUG
 release: clean
 release: $(BIN)/$(PROG)
 

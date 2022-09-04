@@ -15,23 +15,6 @@
 #define BACKLOG 500		// max. number of pending connections
 #define PORT 10000
 
-/*
- * To Do:
- * 	Add function that creates header data
- * 	Add header-file that contains function mentioned above
- * 	Add status codes to header-file (status codes see: RFC-7231)
- * 	Process requests 
- * 	Handle errors
- * 	Add log function?
- *
- * Test the server:
- * 	nc localhost <port>
- * 	localhost:<port> (Browser)
- *
- * Header examples:
- * 	curl -I <url>
-*/
-
 
 static const struct option long_options[] = 
 {
