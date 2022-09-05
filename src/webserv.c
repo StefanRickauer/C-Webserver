@@ -1,4 +1,5 @@
 #include <arpa/inet.h>
+#include <errno.h>
 #include <getopt.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -10,11 +11,13 @@
 #include <sys/wait.h>
 
 #include "boolean.h"
+#include "error_handler.h"
 #include "server_logic.h"
 
 #define BACKLOG 500		// max. number of pending connections
 #define PORT 10000
 
+extern int errno;
 
 static const struct option long_options[] = 
 {
@@ -74,7 +77,7 @@ int main(int argc, char **argv)
 	
 	if(serverFd == -1)
 	{
-		// Handle socket error and terminate
+		terminate(errno);
 	}
 
 	memset(&serv_addr, 0, sizeof(struct sockaddr_in6));
@@ -85,15 +88,16 @@ int main(int argc, char **argv)
 	status = bind(serverFd, (struct sockaddr*) &serv_addr, sizeof(struct sockaddr_in6));
 	if(status == -1)
 	{
-		// Handle bind error, close socket and terminate
 		close(serverFd);
+		terminate(errno);
 	}
  
 	status = listen(serverFd, BACKLOG);
+	
 	if(status == -1)
 	{
-		// Handle listen error, close socket and terminate
 		close(serverFd);
+		terminate(errno);
 	}
 
 	printf("Server started on port: %d\n", (port == -1) ? PORT : port);
@@ -105,8 +109,8 @@ int main(int argc, char **argv)
 
 		if(clientFd == -1)
 		{
-			// Handle accept error, close socket and terminate
 			close(serverFd);
+			terminate(errno);
 		}
 
 		if(inet_ntop(AF_INET6, &cli_addr.sin6_addr, cli_addr_str,
@@ -123,8 +127,7 @@ int main(int argc, char **argv)
 		pid = fork();
 		if(pid == -1) 
 		{
-			// Add err msg
-			exit(EXIT_FAILURE);
+			terminate(errno);
 		}
 		
 		else if (pid == 0) 

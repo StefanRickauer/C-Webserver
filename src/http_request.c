@@ -1,5 +1,5 @@
 #include <string.h>
-#include "error_codes.h"
+#include "http_err_codes.h"
 #include "http_request.h"
 #include "mcval.h"
 
@@ -15,28 +15,21 @@ int extract_req_params(char *request, char *method, char *target, char *version)
 	sub_string = strtok(temp, " ");
 	
 	if(sub_string == NULL)
-	{
 		return BAD_REQUEST;
-	}
 	
 	strcpy(method, sub_string);
 
 	sub_string = strtok(NULL, " ");
 
 	if(sub_string == NULL)
-	{
-		
 		return BAD_REQUEST;
-	} 	
+
 	strcpy(target, sub_string);
 
 	sub_string = strtok(NULL, "\n");
 
 	if(sub_string == NULL)
-	{
-		
-		return BAD_REQUEST;
-	} 	
+		return BAD_REQUEST; 	
 
 	strcpy(version, sub_string);
 
