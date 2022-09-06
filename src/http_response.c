@@ -1,9 +1,14 @@
 #include <string.h>
 #include "http_response.h"
+#include "http_status_codes.h"
 #include "gmt_date.h"
+#include "mcval.h"
 
-void create_status_line(char *protocol, char *status, char *msg)
+void create_status_line(char *protocol, int status_code, char *msg)
 {
+	char status[BUF_SIZE];
+	get_status_message(status_code, status);
+
 	strcpy(msg, protocol);
 	strcat(msg, " ");
 	strcat(msg, status);

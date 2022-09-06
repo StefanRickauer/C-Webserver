@@ -1,5 +1,5 @@
-#ifndef _HTTP_ERROR_CODES_H
-#define _HTTP_ERROR_CODES_H
+#ifndef _HTTP_STATUS_CODES_H
+#define _HTTP_STATUS_CODES_H
 
 // Informal Responses
 
@@ -72,7 +72,7 @@
 #define LOOP_DETECTED 	508
 #define NET_AUTH_REQ	511
 
-void get_error_message(int , char *);
+void get_status_message(int , char *);
 
 #endif
 

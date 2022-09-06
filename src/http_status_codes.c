@@ -1,7 +1,7 @@
-#include "http_err_codes.h"
 #include <string.h>
+#include "http_status_codes.h"
 
-void get_error_message(int code, char *msg)
+void get_status_message(int code, char *msg)
 {
 	switch(code)
 	{

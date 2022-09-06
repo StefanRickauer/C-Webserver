@@ -1,10 +1,13 @@
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
 #include "boolean.h"
+#include "error_handler.h"
 #include "http_response.h"
 #include "http_request.h"
+#include "http_status_codes.h"
 #include "mcval.h"
 #include "server_logic.h"
 
@@ -18,7 +21,8 @@ int handle_client(int client, bool verbose)
 	int bytes_read, status;	
 		
 	memset(request, '\0', BUF_SIZE);	
-		
+	memset(response, '\0', BUF_SIZE);
+
 	while((bytes_read = read(client, request, BUF_SIZE-1)) > 0)
 	{
 		if(verbose)	
@@ -30,8 +34,21 @@ int handle_client(int client, bool verbose)
 		}
 			
 	}
+	
 	if(bytes_read < 0)
+	{
+		notify(errno);
+		create_status_line(PROTOCOL, BAD_REQUEST, status_line);
+		create_header_fields(header_fields);
+
+		strcpy(header, status_line);
+		strcat(header, header_fields);
+
+		strncpy(response, header, strlen(header));
+		write(client, response, BUF_SIZE);
+
 		return -1;
+	}
 	
 	// Process request here
 	status = extract_req_params(request, req_method, req_location, req_proto);
@@ -42,10 +59,8 @@ int handle_client(int client, bool verbose)
 	}
 
 	// <===================== Proceed here check method (get, post, head etc.) load html file
-
-	memset(response, '\0', BUF_SIZE);
 	
-	create_status_line(PROTOCOL, "200 OK", status_line);
+	create_status_line(PROTOCOL, OK, status_line);
 	create_header_fields(header_fields);
 	
 	strcpy(header, status_line);

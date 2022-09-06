@@ -29,10 +29,10 @@ static const struct option long_options[] =
 char *help_msg = "Usage: ./webserv [ -p port_number ]\n"
 	     "\t\tCommand summary:\n"
 	     "\t\t\t-h\t\tShow this text\n"
-	     "\t\t\t-p port\t\tSpecify port number for remote connections\n"
+	     "\t\t\t-p port\t\tSpecify port number (1 - 65535) for remote connections\n"
 	     "\n\t\tCommand summary (long):\n"
 	     "\t\t\t--help\t\tShow this text\n"
-	     "\t\t\t--port port\tSpecify port number for remote connections\n";
+	     "\t\t\t--port port\tSpecify port number (1 - 65535) for remote connections\n";
 
 int main(int argc, char **argv)
 {
@@ -50,9 +50,21 @@ int main(int argc, char **argv)
 		{
 			case 'p':
 				port = strtol(optarg, NULL, 10);
-				// possible errors: EINVAL ERANGE (see: man strtol)
-				// valid port number range: 0 - 65536 (add check)
-				// handle errors
+				
+				if(errno != 0)
+				{
+					notify(errno);
+					printf("Defaulting to port %d\n", PORT);
+					port = PORT;
+					errno = 0;
+				}
+
+				if(port < 1 || port > 65535)
+				{
+					printf("Invalid port number. Defaulting to port %d\n", PORT);
+					port = PORT;
+				}	
+			
 				break;
 			case 'h':
 				printf("%s", help_msg);
@@ -136,7 +148,7 @@ int main(int argc, char **argv)
 			handle_client(clientFd, verbose);
 			close(clientFd);
 			printf("Connection closed.\n");
-			return 0;
+			exit(EXIT_SUCCESS);
 		}
 
 		else 
