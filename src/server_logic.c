@@ -11,13 +11,13 @@
 #include "mcval.h"
 #include "server_logic.h"
 
-// return codes: -1 fail, 1 success
+
 int handle_client(int client, bool verbose) 
 {
 	char *body = "<h1>Hello World!</h1>";
 
 	char request[BUF_SIZE], req_method[BUF_SIZE], req_location[BUF_SIZE], req_proto[BUF_SIZE]; 
-	char response[BUF_SIZE], header[BUF_SIZE], status_line[BUF_SIZE], header_fields[BUF_SIZE];
+	char response[BUF_SIZE], header[BUF_SIZE];
 	int bytes_read, status;	
 		
 	memset(request, '\0', BUF_SIZE);	
@@ -38,38 +38,53 @@ int handle_client(int client, bool verbose)
 	if(bytes_read < 0)
 	{
 		notify(errno);
-		create_status_line(PROTOCOL, BAD_REQUEST, status_line);
-		create_header_fields(header_fields);
-
-		strcpy(header, status_line);
-		strcat(header, header_fields);
-
+		
+		create_header(PROTOCOL, BAD_REQUEST, header);	
 		strncpy(response, header, strlen(header));
+
 		write(client, response, BUF_SIZE);
 
-		return -1;
+		return FAILURE;
 	}
 	
 	// Process request here
 	status = extract_req_params(request, req_method, req_location, req_proto);
 	
-	if(status == 0)		// everything is fine
+	if(status != SUCCESS)	// error detected
 	{
-		printf("[TEST] Method: %s\tLocation: %s\tProtocol: %s\n", req_method, req_location, req_proto);
+		create_header(PROTOCOL, status, header);
+		strncpy(response, header, strlen(header));
+
+		write(client, response, BUF_SIZE);
+
+		return FAILURE;
 	}
 
-	// <===================== Proceed here check method (get, post, head etc.) load html file
+	printf("[TEST] Method: %s\tLocation: %s\tProtocol: %s\n", req_method, req_location, req_proto);
 	
-	create_status_line(PROTOCOL, OK, status_line);
-	create_header_fields(header_fields);
 	
-	strcpy(header, status_line);
-	strcat(header, header_fields);
+	// protocol supported?
+	status = check_version_support(PROTOCOL, req_proto);
 
+	if(status != SUCCESS)
+	{
+		create_header(PROTOCOL, status, header);
+		strncpy(response, header, strlen(header));
+
+		write(client, response, BUF_SIZE);
+		
+		return FAILURE;
+	}
+	// method supported?			<================= PROCEED HERE
+	
+	// requested location => valid?
+	// 		      => readable?
+	create_header(PROTOCOL, OK, header);
+	
 	strncpy(response, header, strlen(header));
 	strncat(response, body, strlen(body));
 	
 	write(client, response, BUF_SIZE);
       	
-	return 1;
+	return SUCCESS;
 }

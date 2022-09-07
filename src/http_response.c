@@ -32,3 +32,16 @@ void create_header_fields(char *data)
 	strcat(data, content_len);
 	strcat(data, content_type);
 }
+
+void create_header(char *protocol, int status_code, char *header)
+{
+	char content[BUF_SIZE], status_line[BUF_SIZE], header_fields[BUF_SIZE];
+
+	create_status_line(protocol, status_code, status_line);
+	create_header_fields(header_fields);
+
+	strcpy(content, status_line);
+	strcat(content, header_fields);
+
+	strcpy(header, content);
+}	

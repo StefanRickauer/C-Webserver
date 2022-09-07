@@ -3,7 +3,17 @@
 #include "http_request.h"
 #include "mcval.h"
 
-// return 0 on success, http error code on failure
+
+int check_version_support(char *supported_protocol, char *requested_protocol)
+{
+	int result = strncmp(supported_protocol, requested_protocol, strlen(supported_protocol));
+
+	if(result != 0) 
+		return HTTP_VERS_N_SUP;
+
+	return SUCCESS;
+}
+
 int extract_req_params(char *request, char *method, char *target, char *version)
 {
 
@@ -33,5 +43,5 @@ int extract_req_params(char *request, char *method, char *target, char *version)
 
 	strcpy(version, sub_string);
 
-	return 0;
+	return SUCCESS;
 }

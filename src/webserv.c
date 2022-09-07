@@ -128,7 +128,6 @@ int main(int argc, char **argv)
 		if(inet_ntop(AF_INET6, &cli_addr.sin6_addr, cli_addr_str,
 					INET6_ADDRSTRLEN) == NULL)
 		{
-			// Could not convert client address to string
 			printf("Accepted new connection.\n");
 		} else {
 		
@@ -137,6 +136,7 @@ int main(int argc, char **argv)
 		}
 			
 		pid = fork();
+		
 		if(pid == -1) 
 		{
 			terminate(errno);
