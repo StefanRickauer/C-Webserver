@@ -75,8 +75,20 @@ int handle_client(int client, bool verbose)
 		
 		return FAILURE;
 	}
-	// method supported?			<================= PROCEED HERE
-	
+
+	// method supported?			
+	status = check_method_support(req_method);
+
+	if(status != SUCCESS)
+	{
+		create_header(PROTOCOL, status, header);
+		strncpy(response, header, strlen(header));
+
+		write(client, response, BUF_SIZE);
+
+		return FAILURE;
+	}
+
 	// requested location => valid?
 	// 		      => readable?
 	create_header(PROTOCOL, OK, header);
