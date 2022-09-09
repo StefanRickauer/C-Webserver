@@ -3,6 +3,6 @@
 
 #define PROTOCOL "HTTP/1.1"
 
-int handle_client(int , bool);
+int handle_client(int, char *, bool);
 
 #endif

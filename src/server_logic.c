@@ -12,7 +12,7 @@
 #include "server_logic.h"
 
 
-int handle_client(int client, bool verbose) 
+int handle_client(int client, char *webroot, bool verbose) // no user input => (webroot[0] == '\0')
 {
 	char *body = "<h1>Hello World!</h1>";
 
@@ -48,7 +48,7 @@ int handle_client(int client, bool verbose)
 	}
 	
 	// Process request here
-	status = extract_req_params(request, req_method, req_location, req_proto);
+	status = extract_req_params(request, req_method, req_location, req_proto, webroot);
 	
 	if(status != SUCCESS)	// error detected
 	{

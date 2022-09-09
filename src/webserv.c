@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <getopt.h>
+#include <limits.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,26 +23,32 @@ extern int errno;
 static const struct option long_options[] = 
 {
 	{ "port",	required_argument, 	0, 'p' },
+	{ "webroot",	required_argument,	0, 'w' },
 	{ "help", 	no_argument,		0, 'h' },
 	{ 0, 0, 0, 0 }
 };
 
 char *help_msg = "Usage: ./webserv [ -p port_number ]\n"
 	     "\t\tCommand summary:\n"
-	     "\t\t\t-h\t\tShow this text\n"
-	     "\t\t\t-p port\t\tSpecify port number (1 - 65535) for remote connections\n"
+	     "\t\t\t-h\t\t\t\tShow this text\n"
+	     "\t\t\t-p <port>\t\t\tSpecify port number (1 - 65535) for remote connections\n"
+	     "\t\t\t-w <absolute path>\t\tSpecify web root directory\n" 
 	     "\n\t\tCommand summary (long):\n"
-	     "\t\t\t--help\t\tShow this text\n"
-	     "\t\t\t--port port\tSpecify port number (1 - 65535) for remote connections\n";
+	     "\t\t\t--help\t\t\t\tShow this text\n"
+	     "\t\t\t--port <port>\t\t\tSpecify port number (1 - 65535) for remote connections\n"
+	     "\t\t\t--webroot <absolute path>\tSpecify web root directory\n";
 
 int main(int argc, char **argv)
 {
 	int port = -1;	// to check if user specified port, if not port == -1
+	char webroot[PATH_MAX], cwd[PATH_MAX];
 	
+	memset(webroot, '\0', PATH_MAX);
+
 	while(TRUE)
 	{
 		int option_index = 0;
-		int c = getopt_long(argc, argv, "p:h", long_options, &option_index);
+		int c = getopt_long(argc, argv, "p:w:h", long_options, &option_index);
 
 		if(c == -1)
 			break;
@@ -65,6 +72,19 @@ int main(int argc, char **argv)
 					port = PORT;
 				}	
 			
+				break;
+			case 'w':
+				strncpy(webroot, optarg, PATH_MAX);
+
+				if(getcwd(cwd, PATH_MAX) == NULL)
+					terminate(errno);
+
+				if(chdir(webroot) == -1)		// check if webroot exists and if access is granted
+					terminate(errno);
+
+				if(chdir(cwd) == -1)
+					terminate(errno);
+
 				break;
 			case 'h':
 				printf("%s", help_msg);
@@ -145,7 +165,7 @@ int main(int argc, char **argv)
 		else if (pid == 0) 
 		{
 			close(serverFd);
-			handle_client(clientFd, verbose);
+			handle_client(clientFd, webroot, verbose);
 			close(clientFd);
 			printf("Connection closed.\n");
 			exit(EXIT_SUCCESS);

@@ -7,7 +7,7 @@
 #include "http_request.h"
 #include "mcval.h"
 
-int extract_req_params(char *request, char *method, char *path, char *version)
+int extract_req_params(char *request, char *method, char *path, char *version, char *webroot)
 {
 
 	char temp[BUF_SIZE], cwd[PATH_MAX];
@@ -26,16 +26,27 @@ int extract_req_params(char *request, char *method, char *path, char *version)
 
 	if(sub_string == NULL)
 		return BAD_REQUEST;
-	
-	if(getcwd(cwd, sizeof(cwd)) == NULL)
-	{
-		notify(errno);
-		return INTERNAL_ERROR;
-	}
-	
-	strcpy(path, cwd);
 
-	strcat(path, sub_string);
+	if(webroot[0] == '\0')
+	{
+		if(getcwd(cwd, sizeof(cwd)) == NULL)
+		{
+			notify(errno);
+			return INTERNAL_ERROR;
+		}
+
+		strcpy(path, cwd);
+
+		strcat(path, sub_string);
+
+	} 
+	
+	else 
+	{
+		strcpy(path, webroot);
+
+		strcat(path, sub_string);
+	}
 
 	sub_string = strtok(NULL, "\n");
 
