@@ -89,8 +89,9 @@ int handle_client(int client, bool verbose)
 		return FAILURE;
 	}
 
-	// requested location => valid?
+	// requested location => valid?  prevent directory traversal
 	// 		      => readable?
+	
 	create_header(PROTOCOL, OK, header);
 	
 	strncpy(response, header, strlen(header));

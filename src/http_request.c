@@ -1,12 +1,16 @@
+#include <errno.h>
+#include <limits.h>
 #include <string.h>
+#include <unistd.h>
+#include "error_handler.h"
 #include "http_status_codes.h"
 #include "http_request.h"
 #include "mcval.h"
 
-int extract_req_params(char *request, char *method, char *target, char *version)
+int extract_req_params(char *request, char *method, char *path, char *version)
 {
 
-	char temp[BUF_SIZE];
+	char temp[BUF_SIZE], cwd[PATH_MAX];
 	char *sub_string;
 
 	strcpy(temp, request);
@@ -22,8 +26,16 @@ int extract_req_params(char *request, char *method, char *target, char *version)
 
 	if(sub_string == NULL)
 		return BAD_REQUEST;
+	
+	if(getcwd(cwd, sizeof(cwd)) == NULL)
+	{
+		notify(errno);
+		return INTERNAL_ERROR;
+	}
+	
+	strcpy(path, cwd);
 
-	strcpy(target, sub_string);
+	strcat(path, sub_string);
 
 	sub_string = strtok(NULL, "\n");
 
