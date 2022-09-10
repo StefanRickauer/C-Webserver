@@ -61,14 +61,14 @@ int main(int argc, char **argv)
 				if(errno != 0)
 				{
 					notify(errno);
-					printf("Defaulting to port %d\n", PORT);
+					printf("Defaulting to port %d.\n", PORT);
 					port = PORT;
 					errno = 0;
 				}
 
 				if(port < 1 || port > 65535)
 				{
-					printf("Invalid port number. Defaulting to port %d\n", PORT);
+					printf("Invalid port number. Defaulting to port %d.\n", PORT);
 					port = PORT;
 				}	
 			
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 				exit(EXIT_SUCCESS);
 				break;
 			case '?':
-				if(optopt == 'p')	fprintf(stderr, "-p: Missing argument.\n"); 
+				exit(EXIT_FAILURE);
 				break;
 		}
 	}
