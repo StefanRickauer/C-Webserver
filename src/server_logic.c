@@ -16,7 +16,8 @@ int handle_client(int client, char *webroot, bool verbose) // no user input => (
 {
 	char *body = "<h1>Hello World!</h1>";
 
-	char request[BUF_SIZE], req_method[BUF_SIZE], req_location[BUF_SIZE], req_proto[BUF_SIZE]; 
+	char request[BUF_SIZE], req_method[BUF_SIZE], req_location[BUF_SIZE]; 
+	char req_params[BUF_SIZE], req_proto[BUF_SIZE];
 	char response[BUF_SIZE], header[BUF_SIZE];
 	int bytes_read, status;	
 		
@@ -48,7 +49,7 @@ int handle_client(int client, char *webroot, bool verbose) // no user input => (
 	}
 	
 	// Process request here
-	status = extract_req_params(request, req_method, req_location, req_proto, webroot);
+	status = extract_req_params(request, req_method, req_location, req_params, req_proto, webroot);
 	
 	if(status != SUCCESS)	// error detected
 	{
@@ -60,7 +61,8 @@ int handle_client(int client, char *webroot, bool verbose) // no user input => (
 		return FAILURE;
 	}
 
-	printf("[TEST] Method: %s\tLocation: %s\tProtocol: %s\n", req_method, req_location, req_proto);
+	printf("[TEST] Method: %s\tLocation: %s\tProtocol: %s\n"
+			"Parameters: %s\n", req_method, req_location, req_proto, (req_params == NULL) ? "" : req_params);
 	
 	
 	// protocol supported?

@@ -1,6 +1,9 @@
-# Ignore PDF and Text files
+# PDF and Text files
 *.pdf
 *.txt
+
+# HTML files
+*.html
 
 # Prerequisites
 *.d

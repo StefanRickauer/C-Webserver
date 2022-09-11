@@ -1,7 +1,8 @@
 #include <string.h>
+
+#include "gmt_date.h"
 #include "http_response.h"
 #include "http_status_codes.h"
-#include "gmt_date.h"
 #include "mcval.h"
 
 void create_status_line(char *protocol, int status_code, char *msg)

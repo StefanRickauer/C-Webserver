@@ -2,7 +2,6 @@
 #define _HTTP_STATUS_CODES_H
 
 // Informal Responses
-
 #define CONTINUE 	100
 #define SWITCHING 	101
 #define PROCESSING	102

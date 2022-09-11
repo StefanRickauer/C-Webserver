@@ -1,5 +1,6 @@
-#include <time.h>
 #include <string.h>
+#include <time.h>
+
 #include "gmt_date.h"
 
 void get_gmt_date_string(char *date)
