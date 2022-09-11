@@ -67,7 +67,8 @@ int extract_req_params(char *request, char *method, char *path, char *params, ch
 
 	strcpy(version, sub_string);
 
-	if(strncmp(method, "GET", strlen("GET")) == 0)
+	if( (strncmp(method, "GET", strlen("GET")) == 0) ||
+	    (strncmp(method, "HEAD", strlen("HEAD")) == 0))
 	{
 		status = process_url(copy_sub_string, url_path, url_params);
 		
@@ -98,31 +99,10 @@ int extract_req_params(char *request, char *method, char *path, char *params, ch
 			strcpy(params, url_params);
 		}
 	}
-
+	
 	else 
 	{
 		return NOT_IMPLEMENTED;
-		status = process_url(copy_sub_string, url_path, url_params);
-
-		if(webroot[0] == '\0')
-		{
-			if(getcwd(cwd, sizeof(cwd)) == NULL)
-			{
-				notify(errno);
-				return INTERNAL_ERROR;
-			}
-
-			strcpy(path, cwd);
-
-			strcat(path, url_path);
-		}
-
-		else 
-		{
-			strcpy(path, webroot);
-
-			strcat(path, url_path);
-		}
 	}
 
 	return SUCCESS;

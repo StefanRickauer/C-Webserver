@@ -65,6 +65,16 @@ int handle_client(int client, char *webroot, bool verbose) // no user input => (
 			"Parameters: %s\n", req_method, req_location, req_proto, (req_params == NULL) ? "" : req_params);
 	
 	
+	if(strncmp(req_method, "HEAD", strlen("HEAD")) == 0)
+	{
+		create_header(PROTOCOL, status, header);
+		strncpy(response, header, strlen(header));
+
+		write(client, response, BUF_SIZE);
+
+		return SUCCESS;
+	}
+
 	// protocol supported?
 	status = check_version_support(PROTOCOL, req_proto);
 
