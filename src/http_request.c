@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <libgen.h>
 #include <limits.h>
 #include <string.h>
 #include <unistd.h>
@@ -59,6 +60,11 @@ int extract_req_params(char *request, char *method, char *path, char *params, ch
 		return BAD_REQUEST;
 
 	strcpy(copy_sub_string, sub_string);
+	
+	if(strcmp(copy_sub_string, "/") == 0)			// default page requested
+	{
+		strcpy(copy_sub_string, DEFAULT_PAGE);		// defined in mcval.h
+	}
 						
 	sub_string = strtok(NULL, "\n");
 	
@@ -121,7 +127,7 @@ int check_version_support(char *supported_protocol, char *requested_protocol)
 int check_method_support(char *method)
 {
 	if(strncmp(method, "HEAD", strlen(method)) == 0)
-		return NOT_IMPLEMENTED;
+		return SUCCESS;
 	
 	else if (strncmp(method, "GET", strlen(method)) == 0)
 		return SUCCESS;
@@ -149,6 +155,49 @@ int check_method_support(char *method)
 
 	else 
 		return BAD_REQUEST;
+
+	return SUCCESS;
+}
+
+int chop_reqested_location(char *full_path, char *directory, char *filename)
+{
+	char cwd[PATH_MAX];
+	char *dir, *base, *cpy;
+	int status;
+
+	cpy = strdup(full_path);
+
+	if(getcwd(cwd, PATH_MAX) == NULL)
+	{
+		notify(errno);
+                return INTERNAL_ERROR;
+	}
+
+	if(chdir(full_path) == -1)
+	{
+		if(errno == ENOTDIR)			// Full path contains file!
+		{
+			dir = dirname(full_path);	// Get directory
+			base = basename(cpy);		// Get file
+		}
+
+		else 
+		{
+			notify(errno);
+                	status = errno_to_status(errno);
+                	return status;
+		}
+	}
+
+	if(chdir(cwd) == -1)
+        {
+                notify(errno);
+                status = errno_to_status(errno);
+                return status;
+        }
+
+	strcpy(directory, dir);
+	strcpy(filename, base);
 
 	return SUCCESS;
 }

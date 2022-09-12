@@ -71,7 +71,7 @@
 #define LOOP_DETECTED 	508
 #define NET_AUTH_REQ	511
 
+int errno_to_status(int );
 void get_status_message(int , char *);
-
 #endif
 

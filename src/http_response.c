@@ -46,3 +46,4 @@ void create_header(char *protocol, int status_code, char *header)
 
 	strcpy(header, content);
 }	
+

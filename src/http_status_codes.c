@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include "http_status_codes.h"
@@ -191,3 +192,36 @@ void get_status_message(int code, char *msg)
 			break;
 	}
 }
+
+int errno_to_status(int err)
+{
+        switch(err)
+        {
+                case EACCES:
+                        return FORBIDDEN;
+                        break;
+
+                case EFAULT:    // fallthrough
+                case ENOENT:
+                        return BAD_REQUEST;
+                        break;
+
+                case ENAMETOOLONG:
+                        return URI_TOO_LONG;
+                        break;
+
+                case EIO:       // fallthrough
+                case ELOOP:     // fallthrough
+                case ENOMEM:    // fallthrough
+                case ENOTDIR:
+                        return INTERNAL_ERROR;
+                        break;
+
+		default:
+			return INTERNAL_ERROR;
+			break;
+
+        }
+
+}
+

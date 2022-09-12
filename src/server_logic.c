@@ -16,7 +16,7 @@ int handle_client(int client, char *webroot, bool verbose) // no user input => (
 {
 	char *body = "<h1>Hello World!</h1>";
 
-	char request[BUF_SIZE], req_method[BUF_SIZE], req_location[BUF_SIZE]; 
+	char request[BUF_SIZE], req_method[BUF_SIZE], req_location[BUF_SIZE], req_dir[BUF_SIZE], req_file[BUF_SIZE];
 	char req_params[BUF_SIZE], req_proto[BUF_SIZE];
 	char response[BUF_SIZE], header[BUF_SIZE];
 	int bytes_read, status;	
@@ -61,9 +61,12 @@ int handle_client(int client, char *webroot, bool verbose) // no user input => (
 		return FAILURE;
 	}
 
+	//status = chop_reqested_location(req_location, req_dir, req_file);
+
 	printf("[TEST] Method: %s\tLocation: %s\tProtocol: %s\n"
 			"Parameters: %s\n", req_method, req_location, req_proto, (req_params == NULL) ? "" : req_params);
 	
+	//printf("[TEST] Directory: %s\tFile: %s\n");
 	
 	if(strncmp(req_method, "HEAD", strlen("HEAD")) == 0)
 	{
@@ -101,7 +104,9 @@ int handle_client(int client, char *webroot, bool verbose) // no user input => (
 		return FAILURE;
 	}
 
-	// requested location => valid?  prevent directory traversal
+	// requested location => valid?  REQUESTED FOLDER = SUBFOLDER OF WEB ROOT ?
+	
+	// HANDLE / 	      => if root is requested look for index.html
 	// 		      => readable?
 	
 	create_header(PROTOCOL, OK, header);

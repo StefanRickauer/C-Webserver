@@ -4,5 +4,6 @@
 #define BUF_SIZE 2048
 #define SUCCESS 0
 #define FAILURE 1
+#define DEFAULT_PAGE "/index.html"
 
 #endif
