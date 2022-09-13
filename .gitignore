@@ -2,9 +2,6 @@
 *.pdf
 *.txt
 
-# HTML files
-*.html
-
 # Prerequisites
 *.d
 

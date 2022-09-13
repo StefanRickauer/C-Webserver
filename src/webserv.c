@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 {
 	int port = -1;	// to check if user specified port, if not port == -1
 	char webroot[PATH_MAX], cwd[PATH_MAX];
-	
+
 	memset(webroot, '\0', PATH_MAX);
 
 	while(TRUE)
@@ -93,6 +93,12 @@ int main(int argc, char **argv)
 				exit(EXIT_FAILURE);
 				break;
 		}
+	}
+
+	if(webroot[0] == '\0')
+	{
+		if(getcwd(webroot, PATH_MAX) == NULL)
+			terminate(errno);
 	}
 	
 	int serverFd, clientFd;

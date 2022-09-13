@@ -201,10 +201,13 @@ int errno_to_status(int err)
                         return FORBIDDEN;
                         break;
 
-                case EFAULT:    // fallthrough
-                case ENOENT:
+                case EFAULT:  
                         return BAD_REQUEST;
                         break;
+
+		case ENOENT:
+			return NOT_FOUND;
+			break;
 
                 case ENAMETOOLONG:
                         return URI_TOO_LONG;
