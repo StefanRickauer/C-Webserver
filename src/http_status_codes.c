@@ -213,18 +213,9 @@ int errno_to_status(int err)
                         return URI_TOO_LONG;
                         break;
 
-                case EIO:       // fallthrough
-                case ELOOP:     // fallthrough
-                case ENOMEM:    // fallthrough
-                case ENOTDIR:
-                        return INTERNAL_ERROR;
-                        break;
-
 		default:
 			return INTERNAL_ERROR;
 			break;
-
         }
-
 }
 

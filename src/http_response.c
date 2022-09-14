@@ -1,4 +1,5 @@
 #include <string.h>
+#include <unistd.h>
 
 #include "gmt_date.h"
 #include "http_response.h"
@@ -47,3 +48,10 @@ void create_header(char *protocol, int status_code, char *header)
 	strcpy(header, content);
 }	
 
+void send_header_only(int client, char *protocol, int status_code, char *header, char *response)
+{
+	create_header(protocol, status_code, header);
+        strncpy(response, header, strlen(header));
+
+        write(client, response, BUF_SIZE);
+}

@@ -32,20 +32,14 @@ int handle_client(int client, char *webroot, bool verbose)
 			fprintf(stdout, "Client request:\n%s\n", request);
 			
 		if(request[bytes_read - 1] == '\n')
-		{
 			break;
-		}
-			
 	}
 	
 	if(bytes_read < 0)
 	{
 		notify(errno);
-		
-		create_header(PROTOCOL, BAD_REQUEST, header);	
-		strncpy(response, header, strlen(header));
-
-		write(client, response, BUF_SIZE);
+		status = errno_to_status(errno);
+		send_header_only(client, PROTOCOL, status, header, response);	
 
 		return FAILURE;
 	}
@@ -55,11 +49,7 @@ int handle_client(int client, char *webroot, bool verbose)
 	
 	if(status != SUCCESS)
 	{
-		create_header(PROTOCOL, status, header);
-		strncpy(response, header, strlen(header));
-
-		write(client, response, BUF_SIZE);
-
+		send_header_only(client, PROTOCOL, status, header, response);
 		return FAILURE;
 	}
 
@@ -67,11 +57,7 @@ int handle_client(int client, char *webroot, bool verbose)
 
 	if(status != SUCCESS)
 	{
-		create_header(PROTOCOL, status, header);
-                strncpy(response, header, strlen(header));
-
-                write(client, response, BUF_SIZE);
-
+		send_header_only(client, PROTOCOL, status, header, response);
                 return FAILURE;
 	}
 
@@ -82,11 +68,7 @@ int handle_client(int client, char *webroot, bool verbose)
 	
 	if(strncmp(req_method, "HEAD", strlen("HEAD")) == 0)
 	{
-		create_header(PROTOCOL, status, header);
-		strncpy(response, header, strlen(header));
-
-		write(client, response, BUF_SIZE);
-
+		send_header_only(client, PROTOCOL, status, header, response);
 		return SUCCESS;
 	}
 
@@ -95,11 +77,7 @@ int handle_client(int client, char *webroot, bool verbose)
 
 	if(status != SUCCESS)
 	{
-		create_header(PROTOCOL, status, header);
-		strncpy(response, header, strlen(header));
-
-		write(client, response, BUF_SIZE);
-		
+		send_header_only(client, PROTOCOL, status, header, response);
 		return FAILURE;
 	}
 
@@ -108,11 +86,7 @@ int handle_client(int client, char *webroot, bool verbose)
 
 	if(status != SUCCESS)
 	{
-		create_header(PROTOCOL, status, header);
-		strncpy(response, header, strlen(header));
-
-		write(client, response, BUF_SIZE);
-
+		send_header_only(client, PROTOCOL, status, header, response);
 		return FAILURE;
 	}
 
