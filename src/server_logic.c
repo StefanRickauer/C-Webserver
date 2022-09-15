@@ -68,7 +68,7 @@ int handle_client(int client, char *webroot, bool verbose)
 	
 	if(strncmp(req_method, "HEAD", strlen("HEAD")) == 0)
 	{
-		send_header_only(client, PROTOCOL, status, header, response);
+		send_header_only(client, PROTOCOL, OK, header, response);
 		return SUCCESS;
 	}
 

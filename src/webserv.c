@@ -40,7 +40,7 @@ char *help_msg = "Usage: ./webserv [ -p port_number ]\n"
 int main(int argc, char **argv)
 {
 	int port = -1;	// to check if user specified port, if not port == -1
-	char webroot[PATH_MAX], cwd[PATH_MAX];
+	char webroot[PATH_MAX];
 
 	memset(webroot, '\0', PATH_MAX);
 
@@ -75,13 +75,7 @@ int main(int argc, char **argv)
 			case 'w':
 				strncpy(webroot, optarg, PATH_MAX);
 
-				if(getcwd(cwd, PATH_MAX) == NULL)
-					terminate(errno);
-
-				if(chdir(webroot) == -1)		// check if webroot exists and if access is granted
-					terminate(errno);
-
-				if(chdir(cwd) == -1)
+				if(chdir(webroot) == -1)		// change current working directory
 					terminate(errno);
 
 				break;
@@ -137,7 +131,8 @@ int main(int argc, char **argv)
 		terminate(errno);
 	}
 
-	printf("Server started on port: %d\n", (port == -1) ? PORT : port);
+	printf("Web root directory: \t\t%s\n", webroot);
+	printf("Server started on port: \t%d\n", (port == -1) ? PORT : port);
 	
 	while(TRUE)
 	{
