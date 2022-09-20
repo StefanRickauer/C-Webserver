@@ -1,12 +1,13 @@
 #include <string.h>
 
-#include "boolean.h"
 #include "file_utils.h"
+#include "http_status_codes.h"
+#include "mcval.h"
 
-bool is_subdirectory(char *directory, char *sub_directory)
+int is_subdirectory(char *directory, char *sub_directory)
 {
 	if(strncmp(directory, sub_directory, strlen(directory)) == 0)
-		return true;
+		return SUCCESS;
 	
-	return false;
+	return BAD_REQUEST;
 }

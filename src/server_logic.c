@@ -21,7 +21,6 @@ int handle_client(int client, char *webroot, bool verbose)
 	char req_params[BUF_SIZE], req_proto[BUF_SIZE];
 	char response[BUF_SIZE], header[BUF_SIZE];
 	int bytes_read, status;	
-	bool subdir;
 		
 	memset(request, '\0', BUF_SIZE);	
 	memset(response, '\0', BUF_SIZE);
@@ -44,7 +43,6 @@ int handle_client(int client, char *webroot, bool verbose)
 		return FAILURE;
 	}
 	
-	// Process request here
 	status = extract_req_params(request, req_method, req_location, req_params, req_proto, webroot);
 	
 	if(status != SUCCESS)
@@ -72,7 +70,6 @@ int handle_client(int client, char *webroot, bool verbose)
 		return SUCCESS;
 	}
 
-	// protocol supported?
 	status = check_version_support(PROTOCOL, req_proto);
 
 	if(status != SUCCESS)
@@ -81,7 +78,6 @@ int handle_client(int client, char *webroot, bool verbose)
 		return FAILURE;
 	}
 
-	// method supported?			
 	status = check_method_support(req_method);
 
 	if(status != SUCCESS)
@@ -90,16 +86,22 @@ int handle_client(int client, char *webroot, bool verbose)
 		return FAILURE;
 	}
 
-	// requested location => valid?  REQUESTED FOLDER = SUBFOLDER OF WEB ROOT ?
-	subdir = is_subdirectory(webroot, req_dir);
+	status = is_subdirectory(webroot, req_dir);
 	
-	// catch error => subdir = false
+	if(status != SUCCESS)
+	{
+		send_header_only(client, PROTOCOL, status, header, response);
+		return FAILURE;
+	}
 
-	if(subdir)
+	if(status == SUCCESS)
 		printf("%s is subdir of %s\n", req_dir, webroot);
 	
-	// 		     CREATE BODY
-	
+	// 		     CREATE BODY 		============================================
+	// 1. Read requested file and store contents into array (body)
+	// 2. Create header <= must be step to in order to calculate the content-length!
+	// 3. Merge header and body
+	// 4. Send file 
 	create_header(PROTOCOL, OK, header);
 	
 	strncpy(response, header, strlen(header));
